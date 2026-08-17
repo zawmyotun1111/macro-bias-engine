@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0b1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Macro Bias">
 <title>Macro Bias Engine — CPI / PPI / PMI → BTC & Gold</title>
 <style>
 :root{--bg:#0b1020;--card:#121a2e;--muted:#8e9ab5;--text:#eef3ff;--line:#26324e;--green:#34d399;--red:#fb7185;--yellow:#fbbf24;--blue:#60a5fa}
@@ -333,6 +338,12 @@ function analyzeV2(){
   }
 }
 </script>
-
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
+</script>
 </body>
 </html>
