@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Macro Bias Engine — CPI / PPI / PMI → BTC & Gold</title>
+<style>
+:root{--bg:#0b1020;--card:#121a2e;--muted:#8e9ab5;--text:#eef3ff;--line:#26324e;--green:#34d399;--red:#fb7185;--yellow:#fbbf24;--blue:#60a5fa}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#080c18,#101a32);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:1050px;margin:auto;padding:22px}.hero{padding:22px 0 12px}.hero h1{font-size:28px;margin:0 0 8px}.hero p{color:var(--muted);margin:0;line-height:1.6}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:rgba(18,26,46,.94);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 12px 35px #0003}
+h2{font-size:18px;margin:0 0 14px} h3{font-size:15px;margin:18px 0 8px}
+.data{display:grid;grid-template-columns:1.3fr .7fr .7fr .7fr;gap:8px;align-items:center;margin-bottom:8px}
+.data label{font-size:14px}.data input{width:100%;background:#0c1325;border:1px solid var(--line);border-radius:9px;color:var(--text);padding:10px}
+.small{font-size:12px;color:var(--muted)}button{border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer}
+.primary{background:var(--blue);color:#07101f}.ghost{background:#1a2540;color:var(--text);border:1px solid var(--line)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.result{text-align:center;padding:18px;border-radius:14px;background:#0c1325;border:1px solid var(--line)}
+.score{font-size:44px;font-weight:800}.bias{font-size:21px;font-weight:800;margin:4px 0 8px}.bar{height:12px;background:#222d47;border-radius:99px;overflow:hidden;display:flex}.bullbar{background:var(--green);height:100%}.bearbar{background:var(--red);height:100%}
+.metric{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:10px 0;gap:10px}.metric:last-child{border:0}.pill{padding:4px 8px;border-radius:99px;font-size:12px;font-weight:700}.bull{background:#063c2d;color:var(--green)}.bear{background:#451624;color:var(--red)}.neu{background:#3b3010;color:var(--yellow)}
+.explain{line-height:1.65;color:#d9e1f5}.note{font-size:12px;color:var(--muted);line-height:1.6}
+.select{background:#0c1325;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px}
+.footer{color:var(--muted);font-size:12px;text-align:center;padding:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>Macro Bias Engine</h1>
+    <p>CPI / Core CPI / PPI / PMI / Jobs / Oil data ထည့်ပြီး BTC & Gold အတွက် <b>Bullish / Bearish bias</b> ကို macro logic နဲ့တွက်ပေးမယ့် personal trading dashboard.</p>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h2>1. Economic Data ထည့်ပါ</h2>
+        <div class="small">Actual, Forecast, Previous ကို ထည့်ပါ။ မရှိတဲ့ data ကို blank ထားနိုင်ပါတယ်။</div>
+        <h3>Inflation</h3>
+        <div class="data"><label>Core CPI m/m</label><input id="ccpi_m" placeholder="0.2"><input id="ccpi_m_f" placeholder="0.2"><input id="ccpi_m_p" placeholder="0.0"></div>
+        <div class="data"><label>Core CPI y/y</label><input id="ccpi_y" placeholder="2.5"><input id="ccpi_y_f" placeholder="2.5"><input id="ccpi_y_p" placeholder="2.6"></div>
+        <div class="data"><label>CPI m/m</label><input id="cpi_m" placeholder="0.1"><input id="cpi_m_f" placeholder="0.1"><input id="cpi_m_p" placeholder="-0.4"></div>
+        <div class="data"><label>CPI y/y</label><input id="cpi_y" placeholder="3.4"><input id="cpi_y_f" placeholder="3.4"><input id="cpi_y_p" placeholder="3.5"></div>
+
+        <h3>Producer Prices</h3>
+        <div class="data"><label>Core PPI m/m</label><input id="cppi_m" placeholder="0.2"><input id="cppi_m_f" placeholder="0.3"><input id="cppi_m_p" placeholder="0.4"></div>
+        <div class="data"><label>PPI m/m</label><input id="ppi_m" placeholder="0.0"><input id="ppi_m_f" placeholder="0.2"><input id="ppi_m_p" placeholder="-0.1"></div>
+
+        <h3>Growth / Services</h3>
+        <div class="data"><label>ISM Services PMI</label><input id="ism" placeholder="54.1"><input id="ism_f" placeholder="54.5"><input id="ism_p" placeholder="54.0"></div>
+        <div class="data"><label>ISM Prices Paid</label><input id="prices" placeholder="70.3"><input id="prices_f" placeholder=""><input id="prices_p" placeholder="67.7"></div>
+        <div class="data"><label>ISM Employment</label><input id="employment" placeholder="47.4"><input id="employment_f" placeholder=""><input id="employment_p" placeholder=""></div>
+
+        <h3>Energy / Other</h3>
+        <div class="data"><label>Crude Inventories (M)</label><input id="oil" placeholder="17.4"><input id="oil_f" placeholder="-1.2"><input id="oil_p" placeholder="7.1"></div>
+
+        <h3>Market Confirmation <span class="small">(optional)</span></h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <select id="dxy" class="select"><option value="0">DXY: No signal</option><option value="-1">DXY rising</option><option value="1">DXY falling</option></select>
+          <select id="yield" class="select"><option value="0">10Y Yield: No signal</option><option value="-1">Yield rising</option><option value="1">Yield falling</option></select>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="analyze()">Analyze Macro Bias</button>
+          <button class="ghost" onclick="loadCurrent()">Load Current Example</button>
+          <button class="ghost" onclick="clearAll()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>2. Engine Result</h2>
+        <div class="result">
+          <div id="score" class="score">—</div>
+          <div id="bias" class="bias">Data ထည့်ပြီး Analyze နှိပ်ပါ</div>
+          <div id="prob" class="small">Bull/Bear probability estimate</div>
+          <div class="bar" style="margin-top:14px"><div id="bullbar" class="bullbar" style="width:50%"></div><div id="bearbar" class="bearbar" style="width:50%"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px"><span id="bulltxt">Bullish 50%</span><span id="beartxt">Bearish 50%</span></div>
+        </div>
+        <div id="summary" class="explain" style="margin-top:14px">Engine က data surprise + inflation trend + growth + oil + market confirmation ကိုပေါင်းပြီး score ထုတ်ပေးပါတယ်။</div>
+      </div>
+
+      <div class="card">
+        <h2>3. ဘာကြောင့် ဒီ Bias ဖြစ်တာလဲ?</h2>
+        <div id="reasons"><div class="note">Analyze လုပ်ပြီးနောက် factor တစ်ခုချင်းစီ ပြပါမယ်။</div></div>
+      </div>
+
+      <div class="card">
+        <h2>4. Trading Interpretation</h2>
+        <div id="plan" class="explain">Macro bias တစ်ခုတည်းကို entry signal မသတ်မှတ်ပါနဲ့။ DXY / 10Y yield / BTC or XAUUSD structure ကို confirmation အဖြစ်သုံးပါ။</div>
+      </div>
+
+      <div class="card">
+        <h2>5. Macro Chain</h2>
+        <div class="note">Inflation ↓ → Fed pressure ↓ → Yield ↓ → DXY ↓ → BTC/Gold ↑</div>
+        <div class="note" style="margin-top:8px">Inflation ↑ → Fed pressure ↑ → Yield ↑ → DXY ↑ → BTC/Gold ↓</div>
+      </div>
+    </div>
+  </div>
+      <div class="card" id="v2">
+        <h2>Version 2 — Position Trend Trader Engine</h2>
+        <div class="small">Macro → Liquidity → D1 Structure → Confirmation → Risk. မင်းရဲ့ trend-following style အတွက် signal ကို “predict” မလုပ်ဘဲ confirmation အဆင့်လိုက် စစ်ပေးပါတယ်။</div>
+
+        <h3>Market / D1 Structure</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <select id="asset" class="select">
+            <option value="BTC">BTCUSDT</option><option value="XAU">XAUUSD</option>
+          </select>
+          <select id="trend" class="select">
+            <option value="1">D1 Trend: Bullish</option>
+            <option value="0">D1 Trend: Neutral / Range</option>
+            <option value="-1">D1 Trend: Bearish</option>
+          </select>
+          <select id="dxyTrend" class="select"><option value="0">DXY D1: Neutral</option><option value="1">DXY D1: Falling ↓</option><option value="-1">DXY D1: Rising ↑</option></select>
+          <select id="us10yTrend" class="select"><option value="0">US10Y D1: Neutral</option><option value="1">US10Y D1: Falling ↓</option><option value="-1">US10Y D1: Rising ↑</option></select>
+          <select id="spxTrend" class="select"><option value="0">S&P 500 D1: Neutral</option><option value="1">S&P 500 D1: Bullish</option><option value="-1">S&P 500 D1: Bearish</option></select>
+          <select id="ndxTrend" class="select"><option value="0">Nasdaq 100 D1: Neutral</option><option value="1">Nasdaq 100 D1: Bullish</option><option value="-1">Nasdaq 100 D1: Bearish</option></select>
+          <select id="oilTrend" class="select"><option value="0">WTI Oil D1: Neutral</option><option value="1">WTI Oil D1: Bullish</option><option value="-1">WTI Oil D1: Bearish</option></select>
+          <select id="structure" class="select">
+            <option value="1">Structure: HH/HL / Reclaim</option>
+            <option value="0">Structure: Inside Range</option>
+            <option value="-1">Structure: LH/LL / Breakdown</option>
+          </select>
+          <select id="location" class="select">
+            <option value="1">Price Location: Discount / Support</option>
+            <option value="0">Price Location: Mid-range</option>
+            <option value="-1">Price Location: Premium / Resistance</option>
+          </select>
+          <select id="liquidity" class="select">
+            <option value="2">Liquidity: Sell-side sweep + reclaim</option>
+            <option value="1">Liquidity: Sell-side nearby</option>
+            <option value="0">Liquidity: No clear sweep</option>
+            <option value="-1">Liquidity: Buy-side sweep + rejection</option>
+            <option value="-2">Liquidity: Major support swept + failed reclaim</option>
+          </select>
+          <select id="breakout" class="select">
+            <option value="2">Breakout: Confirmed + retest hold</option>
+            <option value="1">Breakout: Clean D1 close</option>
+            <option value="0">Breakout: None</option>
+            <option value="-1">Breakdown: D1 close below support</option>
+            <option value="-2">Breakdown: Breakdown + failed retest</option>
+          </select>
+        </div>
+
+        <h3>Federal Reserve — Interest Rate</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <input id="fedRate" type="number" step="0.25" placeholder="Fed Funds Rate %">
+          <select id="fedBias" class="select"><option value="0">Fed Bias: Neutral</option><option value="1">Dovish / Cut Bias</option><option value="-1">Hawkish / Higher-for-longer</option></select>
+          <select id="fedPath" class="select"><option value="0">Expected Path: Neutral</option><option value="1">More cuts expected</option><option value="-1">Fewer cuts / higher rate</option></select>
+          <input id="nextFedRate" type="number" step="0.25" placeholder="Expected next/terminal rate % (optional)">
+        </div>
+        <div class="small" style="margin-top:8px">Fed rate level + policy direction + expected path ကို score ထဲ ပေါင်းပါတယ်။</div>
+
+        <h3>Execution / Risk</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <input id="entry" type="number" step="any" placeholder="Entry price">
+          <input id="stop" type="number" step="any" placeholder="Stop loss price">
+          <input id="target" type="number" step="any" placeholder="Target price">
+          <input id="capital" type="number" step="any" placeholder="Account capital (e.g. 50000)">
+          <input id="riskpct" type="number" step="0.1" value="0.5" placeholder="Risk %">
+          <input id="atr" type="number" step="any" placeholder="Optional ATR">
+        </div>
+        <div class="actions"><button class="primary" onclick="analyzeV2()">Run V2 Setup Engine</button></div>
+      </div>
+
+      <div class="card">
+        <h2>V2 Setup Result</h2>
+        <div class="result">
+          <div id="v2score" class="score">—</div>
+          <div id="v2bias" class="bias">Setup မတွက်ရသေးပါ</div>
+          <div id="v2grade" class="small">A / B / C setup quality</div>
+        </div>
+        <div id="v2reasons" class="explain" style="margin-top:14px">Macro score နဲ့ D1 structure ကို ပေါင်းပြီး setup quality ဖော်ပြပါမယ်။</div>
+      </div>
+
+      <div class="card">
+        <h2>Position Sizing & R:R</h2>
+        <div id="riskresult" class="explain">Entry / SL / TP / Capital / Risk% ထည့်ပြီး Run V2 လုပ်ပါ။</div>
+      </div>
+
+  <div class="footer">Educational decision-support tool. Probability is a model estimate, not a prediction or financial advice. Market can react differently when data is already priced in.</div>
+</div>
+
+<script>
+const ids=["ccpi_m","ccpi_m_f","ccpi_m_p","ccpi_y","ccpi_y_f","ccpi_y_p","cpi_m","cpi_m_f","cpi_m_p","cpi_y","cpi_y_f","cpi_y_p","cppi_m","cppi_m_f","cppi_m_p","ppi_m","ppi_m_f","ppi_m_p","ism","ism_f","ism_p","prices","prices_f","prices_p","employment","employment_f","employment_p","oil","oil_f","oil_p"];
+function n(id){let v=parseFloat(document.getElementById(id).value);return Number.isFinite(v)?v:null}
+function addFactor(arr,name,score,reason){if(score!==0)arr.push({name,score,reason})}
+function compare(id,weight,lowerBull,name,arr){
+  let a=n(id),f=n(id+"_f"),p=n(id+"_p"); if(a===null)return;
+  let s=0, why="";
+  if(f!==null){ if(a<f) s=weight; else if(a>f) s=-weight; }
+  if(lowerBull && a<p){s+=weight*.35;why=`${name}: Actual ${a} < Previous ${p} → inflation pressure easing.`}
+  else if(lowerBull && a>p){s-=weight*.35;why=`${name}: Actual ${a} > Previous ${p} → inflation pressure rising.`}
+  else if(!lowerBull && a>p){s+=weight*.35;why=`${name}: Actual ${a} > Previous ${p} → growth/demand stronger.`}
+  else if(!lowerBull && a<p){s-=weight*.35;why=`${name}: Actual ${a} < Previous ${p} → growth/demand softer.`}
+  if(!why && f!==null) why=`${name}: Actual ${a} vs Forecast ${f}.`;
+  addFactor(arr,name,s,why);
+}
+function analyze(){
+  let factors=[], score=0;
+  // Lower inflation = bullish for BTC/Gold
+  compare("ccpi_m",2.0,true,"Core CPI m/m",factors);
+  compare("ccpi_y",2.6,true,"Core CPI y/y",factors);
+  compare("cpi_m",1.3,true,"CPI m/m",factors);
+  compare("cpi_y",1.5,true,"CPI y/y",factors);
+  compare("cppi_m",1.8,true,"Core PPI m/m",factors);
+  compare("ppi_m",1.1,true,"PPI m/m",factors);
+  // ISM PMI: stronger growth can be mildly bearish for rate-sensitive assets, but weak growth can also mean recession risk.
+  let ism=n("ism"), ismf=n("ism_f"), ismp=n("ism_p");
+  if(ism!==null){
+    let s=0, why="";
+    if(ismf!==null) s += ism<ismf ? 1.0 : -0.7;
+    if(ismp!==null) s += ism<ismp ? .3 : -.2;
+    if(ism<50) {s+=.5;why=`ISM Services ${ism} is below 50 → contraction, which can increase easing expectations.`}
+    else why=`ISM Services ${ism} remains in expansion → growth is resilient; rate-cut expectations may be limited.`;
+    addFactor(factors,"ISM Services PMI",s,why);
+  }
+  let pp=n("prices"), ppp=n("prices_p");
+  if(pp!==null){
+    let s=0; if(ppp!==null)s += pp<ppp?0.7:-0.7;
+    if(n("prices_f")!==null)s += pp<n("prices_f")?0.8:-0.8;
+    addFactor(factors,"ISM Prices Paid",s,`Prices Paid ${pp} → ${s>=0?"less inflation pressure":"more inflation pressure"} than comparison data.`);
+  }
+  let emp=n("employment");
+  if(emp!==null){
+    let s=emp<50?0.7:-0.2;
+    addFactor(factors,"ISM Employment",s,`Employment index ${emp} → ${emp<50?"labor demand is contracting":"labor demand is expanding"}.`);
+  }
+  let oil=n("oil"), oilf=n("oil_f");
+  if(oil!==null){
+    let s=0;
+    if(oilf!==null)s = oil>oilf?0.8:-0.6; // inventory build = oil bearish, inflation somewhat dovish
+    else s = oil>0?0.5:0;
+    addFactor(factors,"Crude Inventories",s,`Crude inventory change ${oil}M → larger build can pressure oil prices and reduce future energy inflation.`);
+  }
+  let dxy=parseFloat(document.getElementById("dxy").value), yld=parseFloat(document.getElementById("yield").value);
+  if(dxy) addFactor(factors,"DXY",dxy*1.5,dxy>0?"DXY falling supports BTC/Gold.":"DXY rising pressures BTC/Gold.");
+  if(yld) addFactor(factors,"10Y Yield",yld*1.5,yld>0?"10Y yield falling supports risk assets/Gold.":"10Y yield rising pressures risk assets/Gold.");
+  score=factors.reduce((a,b)=>a+b.score,0);
+  let max=factors.reduce((a,b)=>a+Math.abs(b.score),0)||1;
+  let strength=Math.min(1,Math.abs(score)/Math.max(3,max*.65));
+  let bull=50+Math.round(45*(score/max)); bull=Math.max(5,Math.min(95,bull)); let bear=100-bull;
+  let bias=score>1.1?"BULLISH":score<-1.1?"BEARISH":"NEUTRAL / MIXED";
+  document.getElementById("score").textContent=(score>=0?"+":"")+score.toFixed(1);
+  document.getElementById("bias").textContent=bias;
+  document.getElementById("prob").textContent=`Model bias strength: ${Math.round(strength*100)}%`;
+  document.getElementById("bullbar").style.width=bull+"%"; document.getElementById("bearbar").style.width=bear+"%";
+  document.getElementById("bulltxt").textContent=`Bullish ${bull}%`; document.getElementById("beartxt").textContent=`Bearish ${bear}%`;
+  let sorted=[...factors].sort((a,b)=>Math.abs(b.score)-Math.abs(a.score));
+  document.getElementById("reasons").innerHTML=sorted.length?sorted.map(x=>`<div class="metric"><div><b>${x.name}</b><div class="note">${x.reason}</div></div><span class="pill ${x.score>0?'bull':x.score<0?'bear':'neu'}">${x.score>0?'+':''}${x.score.toFixed(1)}</span></div>`).join(""):`<div class="note">Data မလုံလောက်သေးပါ။</div>`;
+  let plan="";
+  if(bias==="BULLISH") plan=`Macro bias က BTC/Gold အတွက် bullish ဘက်ကို အလေးသာနေပါတယ်။ ဒါပေမယ့် <b>price structure confirmation</b> မရခင် chase မလုပ်ပါနဲ့။ DXY ↓ + 10Y ↓ + resistance breakout/retest ဖြစ်ရင် setup quality ပိုကောင်းပါတယ်။`;
+  else if(bias==="BEARISH") plan=`Macro bias က bearish ဘက်ကို အလေးသာနေပါတယ်။ DXY ↑ + 10Y ↑ နဲ့ support breakdown တိုက်ဆိုင်ရင် bearish thesis ပိုခိုင်မာပါတယ်။`;
+  else plan=`Macro signals တွေ mixed ဖြစ်နေပါတယ်။ ဒီအခြေအနေမှာ <b>market structure</b> ကို ဦးစားပေးပြီး confirmation မရမချင်း position size လျှော့ထားတာ ပိုသင့်တော်ပါတယ်။`;
+  document.getElementById("plan").innerHTML=plan;
+  document.getElementById("summary").innerHTML=`<b>${bias}</b> — ဒီ score ဟာ data surprise, previous trend, inflation pressure, growth, oil နဲ့ optional DXY/Yield confirmation တွေကို ပေါင်းတွက်ထားတဲ့ heuristic model ဖြစ်ပါတယ်။ <span class="note">“Probability” ကို statistical probability အစစ်အမှန်လို့ မယူပါနဲ့။</span>`;
+}
+function loadCurrent(){
+ const v={ccpi_m:.2,ccpi_m_f:.2,ccpi_m_p:0,ccpi_y:2.5,ccpi_y_f:2.5,ccpi_y_p:2.6,cpi_m:.1,cpi_m_f:.1,cpi_m_p:-.4,cpi_y:3.4,cpi_y_f:3.4,cpi_y_p:3.5,cppi_m:.2,cppi_m_f:.3,cppi_m_p:.4,ppi_m:0,ppi_m_f:.2,ppi_m_p:-.1,ism:54.1,ism_f:54.5,ism_p:54,prices:70.3,prices_p:67.7,employment:47.4,oil:17.4,oil_f:-1.2};
+ for(const k in v)document.getElementById(k).value=v[k];
+ analyze();
+}
+function clearAll(){document.querySelectorAll("input").forEach(x=>x.value="");document.getElementById("dxy").value=0;document.getElementById("yield").value=0;document.getElementById("score").textContent="—";document.getElementById("bias").textContent="Data ထည့်ပြီး Analyze နှိပ်ပါ";document.getElementById("bullbar").style.width="50%";document.getElementById("bearbar").style.width="50%";document.getElementById("bulltxt").textContent="Bullish 50%";document.getElementById("beartxt").textContent="Bearish 50%";document.getElementById("reasons").innerHTML='<div class="note">Analyze လုပ်ပြီးနောက် factor တစ်ခုချင်းစီ ပြပါမယ်။</div>'}
+</script>
+
+<script>
+function analyzeV2(){
+  // Re-use macro engine score if available; otherwise derive from current inputs.
+  analyze();
+  const macroText=document.getElementById("score").textContent;
+  const macro=parseFloat(macroText)||0;
+  const trend=+document.getElementById("trend").value;
+  const structure=+document.getElementById("structure").value;
+  const location=+document.getElementById("location").value;
+  const liquidity=+document.getElementById("liquidity").value;
+  const breakout=+document.getElementById("breakout").value;
+  const asset=document.getElementById("asset").value;
+
+  // Macro is intentionally capped so price structure remains dominant for a D1 trend trader.
+  const macroComponent=Math.max(-3,Math.min(3,macro));
+  const dxyTrend=+document.getElementById("dxyTrend").value;
+  const us10yTrend=+document.getElementById("us10yTrend").value;
+  const spxTrend=+document.getElementById("spxTrend").value;
+  const ndxTrend=+document.getElementById("ndxTrend").value;
+  const oilTrend=+document.getElementById("oilTrend").value;
+
+  const crossMarket=(-dxyTrend*1.5)+(-us10yTrend*1.5)+(spxTrend*0.5)+(ndxTrend*0.8)+(-oilTrend*0.4);
+
+  const fedBias=+document.getElementById("fedBias").value;
+  const fedPath=+document.getElementById("fedPath").value;
+  const fedRate=parseFloat(document.getElementById("fedRate").value);
+  const nextFedRate=parseFloat(document.getElementById("nextFedRate").value);
+  let fedComponent=fedBias*1.5+fedPath*1.5;
+  if(Number.isFinite(fedRate)&&Number.isFinite(nextFedRate)){
+    if(nextFedRate<fedRate) fedComponent+=0.8;
+    else if(nextFedRate>fedRate) fedComponent-=0.8;
+  }
+
+  const score=macroComponent*0.8+trend*2+structure*2+location*0.8+liquidity*2+breakout*2.2+crossMarket+fedComponent;
+  let bias=score>=4?"LONG BIAS":score<=-4?"SHORT BIAS":"WAIT / NO TRADE";
+  let grade=Math.abs(score)>=9?"A":Math.abs(score)>=6?"B":Math.abs(score)>=4?"C":"—";
+
+  const reasons=[];
+  reasons.push(`<div class="metric"><div><b>Macro</b><div class="note">Current macro score ${macro>=0?"+":""}${macro.toFixed(1)}. Macro သည် context ဖြစ်ပြီး D1 structure ထက် weight နည်းပါတယ်။</div></div><span class="pill ${macro>0?'bull':macro<0?'bear':'neu'}">${macro>=0?"+":""}${macro.toFixed(1)}</span></div>`);
+  reasons.push(`<div class="metric"><div><b>D1 Trend</b><div class="note">${trend>0?"Bullish trend → long setups ကို ဦးစားပေး":trend<0?"Bearish trend → short setups ကို ဦးစားပေး":"Trend မရှင်း → patience"}</div></div><span class="pill ${trend>0?'bull':trend<0?'bear':'neu'}">${trend>0?"+":""}${trend}</span></div>`);
+  reasons.push(`<div class="metric"><div><b>Liquidity</b><div class="note">${liquidity===2?"Sell-side sweep + reclaim → long confirmation အားကောင်း":liquidity===-2?"Major support failure → bearish confirmation အားကောင်း":liquidity>0?"Sell-side liquidity အနီး → long opportunity စောင့်ကြည့်":liquidity<0?"Buy-side sweep/rejection → short pressure":"Clear liquidity event မရှိသေး"}</div></div><span class="pill ${liquidity>0?'bull':liquidity<0?'bear':'neu'}">${liquidity>0?"+":""}${liquidity}</span></div>`);
+  reasons.push(`<div class="metric"><div><b>Breakout / Breakdown</b><div class="note">${breakout===2?"Breakout + retest hold → trend continuation confirmation":breakout===-2?"Breakdown + failed retest → bearish continuation confirmation":breakout>0?"D1 breakout confirmation":breakout<0?"D1 breakdown":"No confirmation"}</div></div><span class="pill ${breakout>0?'bull':breakout<0?'bear':'neu'}">${breakout>0?"+":""}${breakout}</span></div>`);
+
+  let execution="WAIT";
+  if(bias==="LONG BIAS") execution=`<b>${asset} LONG candidate</b><br>Entry ကို resistance chase မလုပ်ဘဲ breakout-retest သို့မဟုတ် sell-side sweep + reclaim ပေါ်မှာသာ စဉ်းစားပါ။ D1 close confirmation မရှိရင် position size လျှော့ပါ။`;
+  else if(bias==="SHORT BIAS") execution=`<b>${asset} SHORT candidate</b><br>Support အောက်ကို chase မလုပ်ဘဲ breakdown + failed retest သို့မဟုတ် buy-side sweep + rejection ကို စောင့်ပါ။`;
+  else execution=`<b>NO TRADE / WAIT</b><br>Macro signal ရှိပေမယ့် D1 structure + liquidity + breakout confirmation မပြည့်သေးပါ။ မင်းရဲ့ position-trend style အတွက် capital protection ကို ဦးစားပေးပါ။`;
+
+  document.getElementById("v2score").textContent=(score>=0?"+":"")+score.toFixed(1);
+  document.getElementById("v2bias").textContent=bias;
+  document.getElementById("v2grade").textContent=`Setup quality: ${grade} | Asset: ${asset}`;
+  document.getElementById("v2reasons").innerHTML=reasons.join("");
+  document.getElementById("riskresult").innerHTML=execution;
+
+  const entry=parseFloat(document.getElementById("entry").value);
+  const stop=parseFloat(document.getElementById("stop").value);
+  const target=parseFloat(document.getElementById("target").value);
+  const capital=parseFloat(document.getElementById("capital").value);
+  const riskpct=parseFloat(document.getElementById("riskpct").value);
+  if([entry,stop,target,capital,riskpct].every(Number.isFinite) && entry!==stop){
+    const riskPerUnit=Math.abs(entry-stop);
+    const rewardPerUnit=Math.abs(target-entry);
+    const rr=rewardPerUnit/riskPerUnit;
+    const riskMoney=capital*riskpct/100;
+    const qty=riskMoney/riskPerUnit;
+    document.getElementById("riskresult").innerHTML += `<hr style="border-color:#26324e"><b>Risk model</b><br>Risk amount: ${riskMoney.toFixed(2)}<br>Price risk: ${riskPerUnit.toFixed(4)}<br>Estimated position size: ${qty.toFixed(4)} units<br>R:R = <b>1:${rr.toFixed(2)}</b><div class="note" style="margin-top:8px">Leverage မထည့်ထားပါ။ Contract size / fees / slippage မပါသေးတဲ့ simplified position sizing ဖြစ်ပါတယ်။</div>`;
+  }
+}
+</script>
+
+</body>
+</html>
