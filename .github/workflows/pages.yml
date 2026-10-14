@@ -1,0 +1,50 @@
+name: Publish dashboard to GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ['Update verified economic data']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    if: >-
+      vars.PAGES_DEPLOYMENT_ENABLED == 'true' &&
+      ((github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') ||
+      (github.event_name != 'workflow_run' && github.ref == 'refs/heads/main'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test && npm run validate-data
+      - name: Stage only public PWA assets
+        run: |
+          mkdir -p public/data
+          cp index.html icon.jpg manifest.webmanifest sw.js macro-data.js dashboard-data.js public/
+          cp data/economic-data.json public/data/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish approved dashboard
+        id: deployment
+        uses: actions/deploy-pages@v4

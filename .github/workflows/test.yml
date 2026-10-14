@@ -1,0 +1,20 @@
+name: Validate dashboard
+on:
+  pull_request:
+  push:
+    branches: [main, 'codex/**']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - run: npm run validate-data
+      - run: python3 -m pip install playwright==1.62.0
+      - name: Browser integration and PWA tests
+        run: python3 scripts/browser-test.py
