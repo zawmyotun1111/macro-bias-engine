@@ -1,0 +1,45 @@
+name: Read-only BLS and EIA smoke test
+on:
+  # An isolated, owner-authored diagnostic branch permits one explicit test without
+  # registering a new dispatch workflow on main or touching Pages.
+  push:
+    branches: [codex/live-api-smoke]
+    paths: [.github/workflows/live-smoke.yml, scripts/live-api-smoke.cjs]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: read-only-live-api-smoke
+  cancel-in-progress: false
+jobs:
+  smoke:
+    if: github.repository == 'zawmyotun1111/macro-bias-engine' && github.ref == 'refs/heads/codex/live-api-smoke' && github.actor == 'zawmyotun1111'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out owner-reviewed diagnostic harness
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostic
+          persist-credentials: false
+      - name: Check out the exact reviewed PR provider commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: 2b1738d5ff5dcf4adba490ce22863e9040c086cc
+          path: reviewed
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Validate real published BLS and EIA data without writing snapshots
+        run: node diagnostic/scripts/live-api-smoke.cjs
+        env:
+          SOURCE_ROOT: ${{ github.workspace }}/reviewed
+          TESTED_COMMIT: 2b1738d5ff5dcf4adba490ce22863e9040c086cc
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+      - name: Verify neither checkout has tracked file changes
+        if: always()
+        run: |
+          git -C reviewed diff --exit-code
+          git -C diagnostic diff --exit-code
