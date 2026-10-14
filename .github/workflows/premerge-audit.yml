@@ -1,0 +1,25 @@
+name: Read-only premerge activation audit
+on:
+  push:
+    branches: [codex/live-api-smoke]
+    paths: [.github/workflows/premerge-audit.yml]
+permissions: {}
+jobs:
+  audit:
+    if: github.repository == 'zawmyotun1111/macro-bias-engine' && github.ref == 'refs/heads/codex/live-api-smoke' && github.actor == 'zawmyotun1111'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Report only activation booleans without accessing secrets
+        env:
+          AUTO_DATA_UPDATES_ENABLED: ${{ vars.AUTO_DATA_UPDATES_ENABLED }}
+          PAGES_DEPLOYMENT_ENABLED: ${{ vars.PAGES_DEPLOYMENT_ENABLED }}
+        run: |
+          node <<'NODE'
+          const flags = {};
+          for (const name of ['AUTO_DATA_UPDATES_ENABLED', 'PAGES_DEPLOYMENT_ENABLED']) {
+            const value = process.env[name] || '';
+            flags[name] = { configured: value !== '', enabled: value === 'true' };
+          }
+          console.log('PREMERGE_FLAGS ' + JSON.stringify(flags));
+          NODE
