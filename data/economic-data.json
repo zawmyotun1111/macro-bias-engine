@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "generatedAt": null,
   "indicators": {
     "ccpi_m": {
@@ -9,12 +9,15 @@
       "forecastKind": null,
       "unit": "%",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     },
     "ccpi_y": {
       "actual": null,
@@ -23,12 +26,15 @@
       "forecastKind": null,
       "unit": "%",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     },
     "cpi_m": {
       "actual": null,
@@ -37,12 +43,15 @@
       "forecastKind": null,
       "unit": "%",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     },
     "cpi_y": {
       "actual": null,
@@ -51,12 +60,15 @@
       "forecastKind": null,
       "unit": "%",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     },
     "cppi_m": {
       "actual": null,
@@ -65,12 +77,15 @@
       "forecastKind": null,
       "unit": "%",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     },
     "ppi_m": {
       "actual": null,
@@ -79,12 +94,15 @@
       "forecastKind": null,
       "unit": "%",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     },
     "ism": {
       "actual": null,
@@ -93,12 +111,15 @@
       "forecastKind": null,
       "unit": "index",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     },
     "prices": {
       "actual": null,
@@ -107,12 +128,15 @@
       "forecastKind": null,
       "unit": "index",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     },
     "employment": {
       "actual": null,
@@ -121,12 +145,15 @@
       "forecastKind": null,
       "unit": "index",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     },
     "oil": {
       "actual": null,
@@ -135,12 +162,15 @@
       "forecastKind": null,
       "unit": "million barrels",
       "status": "unavailable",
-      "releaseDate": null,
+      "observationPeriod": null,
+      "publicationDate": null,
+      "publicationStatus": "unknown",
+      "fetchedAt": null,
       "lastSuccessfulUpdate": null,
-      "providerUpdatedAt": null,
       "source": null,
-      "reference": null,
-      "calendarId": null
+      "collectionMethod": null,
+      "revision": null,
+      "calculation": null
     }
   }
 }

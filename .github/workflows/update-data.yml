@@ -1,8 +1,8 @@
 name: Update verified economic data
 on:
   schedule:
-    # Every 30 minutes during US release hours, including DST shifts.
-    - cron: '7,37 12-19 * * 1-5'
+    # Four weekday polls: respects the unregistered BLS 25-query/day limit.
+    - cron: '17 13,15,17,19 * * 1-5'
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,16 +25,18 @@ jobs:
         with:
           node-version: '22'
       - run: npm test
-      - name: Fetch and validate licensed releases
+      - name: Collect official index and inventory data
         run: npm run update-data
         env:
-          TRADING_ECONOMICS_API_KEY: ${{ secrets.TRADING_ECONOMICS_API_KEY }}
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
       - run: npm run validate-data
       - name: Commit only the validated public snapshot
         run: |
-          if git diff --quiet -- data/economic-data.json; then exit 0; fi
+          if git diff --quiet -- data/economic-data.json data/historical-data.json; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/economic-data.json
+          git add data/economic-data.json data/historical-data.json
           git commit -m "data: refresh verified US economic releases"
           git push origin HEAD:main

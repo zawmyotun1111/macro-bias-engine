@@ -32,6 +32,7 @@ jobs:
           mkdir -p public/data
           cp index.html icon.jpg manifest.webmanifest sw.js macro-data.js dashboard-data.js public/
           cp data/economic-data.json public/data/
+          cp data/historical-data.json public/data/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public

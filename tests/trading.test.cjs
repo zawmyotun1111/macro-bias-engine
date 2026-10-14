@@ -87,3 +87,11 @@ test('zero stop distance, negative capital/risk, excessive risk and same-side st
     assert.match(e.elements.riskresult.innerHTML, /Invalid or incomplete/);
   }
 });
+test('blank consensus Forecast removes surprise scoring but retains verified Previous trend', () => {
+  const trend = engine({ cpi_m:.2, cpi_m_p:.3 }); trend.analyze();
+  assert.equal(trend.elements.score.textContent, '+0.5');
+  const equal = engine({ cpi_m:.2, cpi_m_p:.2 }); equal.analyze();
+  assert.equal(equal.elements.score.textContent, '+0.0');
+  const missing = engine({ cpi_m_p:.3 }); missing.analyze();
+  assert.equal(missing.elements.score.textContent, '+0.0');
+});

@@ -44,15 +44,30 @@ h2{font-size:18px;margin:0 0 14px} h3{font-size:15px;margin:18px 0 8px}
     <div class="actions">
       <button id="refreshData" class="primary">Refresh Data</button>
       <button id="manualOverride" class="ghost">Manual Override</button>
+      <button id="manualForecasts" class="ghost">Manual Forecasts</button>
       <a class="ghost select" href="https://github.com/zawmyotun1111/macro-bias-engine/actions/workflows/update-data.yml" target="_blank" rel="noopener noreferrer">Run server update in GitHub Actions</a>
     </div>
-    <p class="note">Refresh Data loads the latest published snapshot. Provider updates run in GitHub Actions; authorized maintainers can use Run workflow there. API credentials stay on the server. Manual overrides are local to this session.</p>
+    <p class="note">Refresh Data loads the latest published snapshot. Provider updates run in GitHub Actions; authorized maintainers can use Run workflow there. This button loads published data; it does not trigger a new official release. Manual entries stay in this session.</p>
     <div id="refreshStatus" role="status" class="note" aria-live="polite"></div>
     <div id="staleWarning" class="warning" role="status" hidden></div>
     <div class="metric"><b>BTC macro bias</b><span id="btcMacroBias">—</span></div>
     <div class="metric"><b>Gold macro bias</b><span id="goldMacroBias">—</span></div>
     <div id="biasDataStatus" class="note"></div>
-    <details><summary>Release dates, sources &amp; successful updates</summary><div id="releaseMetadata"></div></details>
+    <details><summary>Observation periods, publication dates &amp; sources</summary><div id="releaseMetadata"></div></details>
+    <details><summary>Verified manual ISM entry</summary>
+      <p class="note">Enter only a release you have checked in the official services report. This is user verification, not automated verification. The entry stays in your session and is never published.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <select id="manualIndicator" class="select" aria-label="Manual ISM indicator"><option value="ism">Services PMI</option><option value="prices">Services Prices Paid</option><option value="employment">Services Employment</option></select>
+        <input id="verifiedActual" type="number" step="any" placeholder="Verified Actual" aria-label="Verified Actual">
+        <input id="verifiedPrevious" type="number" step="any" placeholder="Previous (optional)" aria-label="Verified Previous">
+        <input id="verifiedPeriod" type="month" aria-label="Observation month">
+        <input id="verifiedPublication" type="datetime-local" aria-label="Publication date and time (your local timezone)">
+        <input id="verifiedSource" type="url" placeholder="Official report URL" aria-label="Official report URL">
+      </div>
+      <label class="note"><input id="verifiedConfirm" type="checkbox"> I checked the values, observation period and publication time in the official services report.</label>
+      <div class="actions"><button id="saveVerifiedISM" class="ghost">Use Verified Manual Release</button></div>
+      <div id="manualEntryStatus" class="note" role="status"></div>
+    </details>
   </div>
   <div class="grid">
     <div>

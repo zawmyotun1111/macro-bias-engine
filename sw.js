@@ -1,5 +1,5 @@
 importScripts('./macro-data.js');
-const CACHE_NAME = 'macro-bias-v2-auto-1';
+const CACHE_NAME = 'macro-bias-v2-official-2';
 const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.jpg', './macro-data.js', './dashboard-data.js'];
 const DATA_URL = new URL('./data/economic-data.json', self.location).href;
 self.addEventListener('install', event => {

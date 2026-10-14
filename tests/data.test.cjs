@@ -1,8 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const D = require('../macro-data.js');
-const U = require('../scripts/update-data.cjs');
+const D = require('./fixtures/legacy/macro-data.cjs');
+const U = require('./fixtures/legacy/calendar.cjs');
 const now = Date.parse('2026-10-14T18:00:00Z');
 function event(id = 'cpi_m', changes = {}) {
   const d = D.definitions[id];
@@ -13,7 +13,7 @@ function event(id = 'cpi_m', changes = {}) {
     Previous: '', Forecast: '', TEForecast: '99', ...changes };
 }
 test('committed snapshot validates and blank bootstrap contains no fabricated values', () => {
-  const data = require('../data/economic-data.json');
+  const data = D.emptySnapshot(); // retired v1 contract fixture; production v2 tested separately
   D.validateSnapshot(data);
   for (const r of Object.values(D.emptySnapshot().indicators)) assert.equal(r.actual, null);
 });
