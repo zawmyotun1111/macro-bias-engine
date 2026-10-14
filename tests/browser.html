@@ -1,0 +1,68 @@
+<!doctype html><meta charset="utf-8"><title>Dashboard integration tests</title>
+<pre id="result">RUNNING</pre><iframe id="app" src="../index.html"></iframe>
+<script>
+(async () => {
+  const report = document.getElementById('result'), passed = [];
+  const check = (condition, name) => { if (!condition) throw new Error(name); passed.push(name); };
+  const wait = async predicate => { for(let i=0;i<100;i++){ if(predicate())return; await new Promise(r=>setTimeout(r,20)); } throw new Error('Timed out'); };
+  try {
+    const frame = document.getElementById('app');
+    await wait(() => frame.contentWindow.MacroData && frame.contentDocument.getElementById('refreshStatus').textContent.includes('Published snapshot'));
+    const w = frame.contentWindow, doc = frame.contentDocument, $ = id => doc.getElementById(id);
+    check($('cpi_m').readOnly && $('cpi_m').value === '', 'Unavailable actual remains blank/read-only');
+    check($('btcMacroBias').textContent.includes('Unavailable'), 'No verified releases yields unavailable BTC/Gold bias');
+    check(doc.getElementById('v2') && $('entry') && doc.querySelector('link[rel="manifest"]'), 'V2, risk and PWA retained');
+    const D = w.MacroData, snapshot = D.emptySnapshot(), now = new Date().toISOString();
+    snapshot.generatedAt = now;
+    const obs = D.shiftMonth(now.slice(0,7),-2);
+    snapshot.indicators.cpi_m = {...D.emptyRecord('cpi_m'),actual:.1,previous:.3,status:'released',observationPeriod:obs,publicationDate:now,publicationStatus:'confirmed',fetchedAt:now,lastSuccessfulUpdate:now,source:{name:'Synthetic browser test fixture',provider:'BLS',series:'CUSR0000SA0',url:'https://www.bls.gov/'},collectionMethod:'official-api',revision:{status:'first-seen',detectedAt:null},calculation:{method:'index-percent-change',series:'CUSR0000SA0',adjustment:'SA',inputUnit:'index',outputDecimals:1,lagMonths:1,inputs:[{period:obs,value:'100.100',preliminary:false},{period:D.shiftMonth(obs,-1),value:'100.000',preliminary:false},{period:D.shiftMonth(obs,-2),value:'99.700',preliminary:false}]}};
+    const refresh = async data => {
+      w.fetch = async () => new Response(JSON.stringify(data), {status:200});
+      $('refreshData').click(); await wait(() => !$('refreshData').disabled);
+    };
+    $('asset').value='XAU'; $('entry').value='100'; $('stop').value='90'; $('target').value='120'; $('capital').value='50000';
+    await refresh(snapshot);
+    check($('cpi_m').value === '0.1' && $('cpi_m_f').value === '', 'Refresh populates verified numbers');
+    check($('score').textContent === '+0.5' && $('btcMacroBias').textContent === $('goldMacroBias').textContent, 'Refresh recalculates BTC and Gold macro bias');
+    check($('v2grade').textContent.includes('XAU') && $('entry').value === '100' && $('riskresult').innerHTML.includes('25.0000'), 'Refresh preserves D1 asset and recalculates risk');
+    check($('releaseMetadata').textContent.includes('Synthetic browser test fixture') && $('releaseMetadata').textContent.includes('consensus estimate'), 'Source and estimate metadata displayed');
+    check($('staleWarning').textContent.includes('9 unavailable'), 'Missing-data warning displayed');
+    $('manualOverride').click(); $('cpi_m').value='.9'; $('cpi_m').dispatchEvent(new Event('input'));
+    check(!$('cpi_m').readOnly && $('dataMode').textContent.includes('unverified'), 'Manual override visibly unverified');
+    await refresh(snapshot); check($('cpi_m').value === '.9', 'Refresh does not overwrite manual inputs');
+    $('clearData').click(); check($('cpi_m').value === '' && $('entry').value === '100', 'Clear manual data preserves risk inputs');
+    $('manualOverride').click(); check($('cpi_m').value === '0.1' && $('cpi_m').readOnly, 'Exit override restores verified values');
+    const corrupt = structuredClone(snapshot); corrupt.indicators.cpi_m.actual='bad';
+    await refresh(corrupt); check($('cpi_m').value === '0.1' && $('refreshStatus').textContent.includes('failed'), 'Corrupt refresh retains last verified data');
+    const older = structuredClone(snapshot); older.generatedAt='2020-01-01T00:00:00.000Z';
+    await refresh(older); check($('cpi_m').value === '0.1', 'Older snapshot rejected');
+    w.fetch = async () => { throw new Error('offline'); }; $('refreshData').click(); await wait(() => !$('refreshData').disabled);
+    check($('cpi_m').value === '0.1', 'Network failure preserves verified values');
+    const stale = structuredClone(snapshot); stale.indicators.cpi_m.publicationDate=new Date(Date.now()-50*86400000).toISOString();
+    stale.indicators.cpi_m.observationPeriod=D.shiftMonth(obs,-5);
+    // A new page with no older release can validate stale history; freshness itself is independent of last check.
+    check(D.freshness(stale.indicators.cpi_m,'cpi_m') === 'stale', 'Stale release is detected even with recent verification');
+    $('manualForecasts').click();
+    check(!$('cpi_m_f').readOnly && $('cpi_m').readOnly, 'Forecast-only mode preserves official Actual/Previous');
+    $('cpi_m_f').value='.2'; $('cpi_m_f').dispatchEvent(new Event('input'));
+    check($('score').textContent === '+1.8' && $('releaseMetadata').textContent.includes('manual consensus estimate (unverified)'), 'Manual Forecast is visibly an estimate and affects surprise scoring');
+    await refresh(snapshot); check($('cpi_m_f').value === '0.2', 'Same-period refresh preserves manual Forecast');
+    const next=structuredClone(snapshot); next.generatedAt=new Date().toISOString(); next.indicators.cpi_m.observationPeriod=D.shiftMonth(obs,1);
+    next.indicators.cpi_m.calculation.inputs.forEach(x=>x.period=D.shiftMonth(x.period,1));
+    await refresh(next); check($('cpi_m_f').value === '', 'New observation period discards old manual Forecast');
+    check($('refreshStatus').textContent.includes('No new official release was triggered'), 'Refresh never claims to trigger a release');
+    $('manualIndicator').value='ism'; $('verifiedActual').value='52.1'; $('verifiedPrevious').value='51.2'; $('verifiedPeriod').value=D.shiftMonth(now.slice(0,7),-1);
+    const publication=new Date(Date.now()-3600000); const local=new Date(publication.getTime()-publication.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    $('verifiedPublication').value=local; $('verifiedSource').value='https://www.ismworld.org/supply-management-news-and-reports/reports/'; $('verifiedConfirm').checked=true; $('saveVerifiedISM').click();
+    check($('ism').value === '52.1' && $('releaseMetadata').textContent.includes('user-verified manual'), 'Verified manual ISM requires report metadata and remains visibly manual');
+    await refresh(next);check($('ism').value === '52.1', 'Automatic refresh preserves verified manual ISM');
+    $('verifiedActual').value='99'; $('verifiedConfirm').checked=false; $('saveVerifiedISM').click();
+    check($('ism').value === '52.1' && $('manualEntryStatus').textContent.includes('rejected'), 'Unconfirmed manual release rejected without replacing verified value');
+    $('manualOverride').click(); $('cpi_m').value='.9'; $('manualForecasts').click();
+    check($('cpi_m').value === '.9' && $('entry').value === '100', 'Clearing Forecasts preserves manual Actual and risk inputs');
+    await w.navigator.serviceWorker.ready;
+    check((await w.caches.keys()).includes('macro-bias-v2-official-2'), 'Service worker installed and caches app shell');
+    report.textContent='PASS '+passed.length+' browser checks\n'+passed.join('\n');
+  } catch (error) { report.textContent='FAIL '+error.message+'\n'+passed.join('\n'); }
+})();
+</script>

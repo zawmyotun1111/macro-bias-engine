@@ -28,6 +28,7 @@ h2{font-size:18px;margin:0 0 14px} h3{font-size:15px;margin:18px 0 8px}
 .explain{line-height:1.65;color:#d9e1f5}.note{font-size:12px;color:var(--muted);line-height:1.6}
 .select{background:#0c1325;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px}
 .footer{color:var(--muted);font-size:12px;text-align:center;padding:8px}
+.release-row{padding:10px 0;border-bottom:1px solid var(--line);font-size:12px;line-height:1.7}.release-row a{color:var(--blue)}.warning{color:var(--yellow);border:1px solid var(--yellow);padding:12px;border-radius:9px;margin:12px 0}input[readonly]{opacity:.8}button:disabled{opacity:.5;cursor:default}.data[data-freshness="stale"] label{color:var(--yellow)}
 </style>
 </head>
 <body>
@@ -37,11 +38,43 @@ h2{font-size:18px;margin:0 0 14px} h3{font-size:15px;margin:18px 0 8px}
     <p>CPI / Core CPI / PPI / PMI / Jobs / Oil data ထည့်ပြီး BTC & Gold အတွက် <b>Bullish / Bearish bias</b> ကို macro logic နဲ့တွက်ပေးမယ့် personal trading dashboard.</p>
   </div>
 
+  <div class="card" id="automaticData">
+    <h2>Automatic US Economic Data</h2>
+    <div id="dataMode" class="note"></div>
+    <div class="actions">
+      <button id="refreshData" class="primary">Refresh Data</button>
+      <button id="manualOverride" class="ghost">Manual Override</button>
+      <button id="manualForecasts" class="ghost">Manual Forecasts</button>
+      <a class="ghost select" href="https://github.com/zawmyotun1111/macro-bias-engine/actions/workflows/update-data.yml" target="_blank" rel="noopener noreferrer">Run server update in GitHub Actions</a>
+    </div>
+    <p class="note">Refresh Data loads the latest published snapshot. Provider updates run in GitHub Actions; authorized maintainers can use Run workflow there. This button loads published data; it does not trigger a new official release. Manual entries stay in this session.</p>
+    <div id="refreshStatus" role="status" class="note" aria-live="polite"></div>
+    <div id="staleWarning" class="warning" role="status" hidden></div>
+    <div class="metric"><b>BTC macro bias</b><span id="btcMacroBias">—</span></div>
+    <div class="metric"><b>Gold macro bias</b><span id="goldMacroBias">—</span></div>
+    <div id="biasDataStatus" class="note"></div>
+    <details><summary>Observation periods, publication dates &amp; sources</summary><div id="releaseMetadata"></div></details>
+    <details><summary>Verified manual ISM entry</summary>
+      <p class="note">Enter only a release you have checked in the official services report. This is user verification, not automated verification. The entry stays in your session and is never published.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <select id="manualIndicator" class="select" aria-label="Manual ISM indicator"><option value="ism">Services PMI</option><option value="prices">Services Prices Paid</option><option value="employment">Services Employment</option></select>
+        <input id="verifiedActual" type="number" step="any" placeholder="Verified Actual" aria-label="Verified Actual">
+        <input id="verifiedPrevious" type="number" step="any" placeholder="Previous (optional)" aria-label="Verified Previous">
+        <input id="verifiedPeriod" type="month" aria-label="Observation month">
+        <input id="verifiedPublication" type="datetime-local" aria-label="Publication date and time (your local timezone)">
+        <input id="verifiedSource" type="url" placeholder="Official report URL" aria-label="Official report URL">
+      </div>
+      <label class="note"><input id="verifiedConfirm" type="checkbox"> I checked the values, observation period and publication time in the official services report.</label>
+      <div class="actions"><button id="saveVerifiedISM" class="ghost">Use Verified Manual Release</button></div>
+      <div id="manualEntryStatus" class="note" role="status"></div>
+    </details>
+  </div>
   <div class="grid">
     <div>
       <div class="card">
         <h2>1. Economic Data ထည့်ပါ</h2>
         <div class="small">Actual, Forecast, Previous ကို ထည့်ပါ။ မရှိတဲ့ data ကို blank ထားနိုင်ပါတယ်။</div>
+        <div class="data small" aria-hidden="true"><span>Indicator</span><span>Actual</span><span>Forecast*</span><span>Previous</span></div><div class="note">* Consensus estimate; not a verified release. Blank means unavailable.</div>
         <h3>Inflation</h3>
         <div class="data"><label>Core CPI m/m</label><input id="ccpi_m" placeholder="0.2"><input id="ccpi_m_f" placeholder="0.2"><input id="ccpi_m_p" placeholder="0.0"></div>
         <div class="data"><label>Core CPI y/y</label><input id="ccpi_y" placeholder="2.5"><input id="ccpi_y_f" placeholder="2.5"><input id="ccpi_y_p" placeholder="2.6"></div>
@@ -67,9 +100,8 @@ h2{font-size:18px;margin:0 0 14px} h3{font-size:15px;margin:18px 0 8px}
         </div>
 
         <div class="actions">
-          <button class="primary" onclick="analyze()">Analyze Macro Bias</button>
-          <button class="ghost" onclick="loadCurrent()">Load Current Example</button>
-          <button class="ghost" onclick="clearAll()">Clear</button>
+          <button class="primary" id="analyzeMacro">Analyze Macro Bias</button>
+          <button class="ghost" id="clearData">Clear Manual Data</button>
         </div>
       </div>
     </div>
@@ -167,7 +199,7 @@ h2{font-size:18px;margin:0 0 14px} h3{font-size:15px;margin:18px 0 8px}
           <input id="riskpct" type="number" step="0.1" value="0.5" placeholder="Risk %">
           <input id="atr" type="number" step="any" placeholder="Optional ATR">
         </div>
-        <div class="actions"><button class="primary" onclick="analyzeV2()">Run V2 Setup Engine</button></div>
+        <div class="actions"><button class="primary" id="runV2">Run V2 Setup Engine</button></div>
       </div>
 
       <div class="card">
@@ -190,16 +222,16 @@ h2{font-size:18px;margin:0 0 14px} h3{font-size:15px;margin:18px 0 8px}
 
 <script>
 const ids=["ccpi_m","ccpi_m_f","ccpi_m_p","ccpi_y","ccpi_y_f","ccpi_y_p","cpi_m","cpi_m_f","cpi_m_p","cpi_y","cpi_y_f","cpi_y_p","cppi_m","cppi_m_f","cppi_m_p","ppi_m","ppi_m_f","ppi_m_p","ism","ism_f","ism_p","prices","prices_f","prices_p","employment","employment_f","employment_p","oil","oil_f","oil_p"];
-function n(id){let v=parseFloat(document.getElementById(id).value);return Number.isFinite(v)?v:null}
+function n(id){let raw=document.getElementById(id).value.trim();if(!raw)return null;let v=Number(raw);return Number.isFinite(v)?v:null}
 function addFactor(arr,name,score,reason){if(score!==0)arr.push({name,score,reason})}
 function compare(id,weight,lowerBull,name,arr){
   let a=n(id),f=n(id+"_f"),p=n(id+"_p"); if(a===null)return;
   let s=0, why="";
   if(f!==null){ if(a<f) s=weight; else if(a>f) s=-weight; }
-  if(lowerBull && a<p){s+=weight*.35;why=`${name}: Actual ${a} < Previous ${p} → inflation pressure easing.`}
-  else if(lowerBull && a>p){s-=weight*.35;why=`${name}: Actual ${a} > Previous ${p} → inflation pressure rising.`}
-  else if(!lowerBull && a>p){s+=weight*.35;why=`${name}: Actual ${a} > Previous ${p} → growth/demand stronger.`}
-  else if(!lowerBull && a<p){s-=weight*.35;why=`${name}: Actual ${a} < Previous ${p} → growth/demand softer.`}
+  if(p!==null && lowerBull && a<p){s+=weight*.35;why=`${name}: Actual ${a} < Previous ${p} → inflation pressure easing.`}
+  else if(p!==null && lowerBull && a>p){s-=weight*.35;why=`${name}: Actual ${a} > Previous ${p} → inflation pressure rising.`}
+  else if(p!==null && !lowerBull && a>p){s+=weight*.35;why=`${name}: Actual ${a} > Previous ${p} → growth/demand stronger.`}
+  else if(p!==null && !lowerBull && a<p){s-=weight*.35;why=`${name}: Actual ${a} < Previous ${p} → growth/demand softer.`}
   if(!why && f!==null) why=`${name}: Actual ${a} vs Forecast ${f}.`;
   addFactor(arr,name,s,why);
 }
@@ -216,16 +248,16 @@ function analyze(){
   let ism=n("ism"), ismf=n("ism_f"), ismp=n("ism_p");
   if(ism!==null){
     let s=0, why="";
-    if(ismf!==null) s += ism<ismf ? 1.0 : -0.7;
-    if(ismp!==null) s += ism<ismp ? .3 : -.2;
+    if(ismf!==null) s += ism<ismf ? 1.0 : ism>ismf ? -0.7 : 0;
+    if(ismp!==null) s += ism<ismp ? .3 : ism>ismp ? -.2 : 0;
     if(ism<50) {s+=.5;why=`ISM Services ${ism} is below 50 → contraction, which can increase easing expectations.`}
     else why=`ISM Services ${ism} remains in expansion → growth is resilient; rate-cut expectations may be limited.`;
     addFactor(factors,"ISM Services PMI",s,why);
   }
   let pp=n("prices"), ppp=n("prices_p");
   if(pp!==null){
-    let s=0; if(ppp!==null)s += pp<ppp?0.7:-0.7;
-    if(n("prices_f")!==null)s += pp<n("prices_f")?0.8:-0.8;
+    let s=0; if(ppp!==null)s += pp<ppp?0.7:pp>ppp?-0.7:0;
+    if(n("prices_f")!==null)s += pp<n("prices_f")?0.8:pp>n("prices_f")?-0.8:0;
     addFactor(factors,"ISM Prices Paid",s,`Prices Paid ${pp} → ${s>=0?"less inflation pressure":"more inflation pressure"} than comparison data.`);
   }
   let emp=n("employment");
@@ -236,7 +268,7 @@ function analyze(){
   let oil=n("oil"), oilf=n("oil_f");
   if(oil!==null){
     let s=0;
-    if(oilf!==null)s = oil>oilf?0.8:-0.6; // inventory build = oil bearish, inflation somewhat dovish
+    if(oilf!==null)s = oil>oilf?0.8:oil<oilf?-0.6:0; // inventory build = oil bearish, inflation somewhat dovish
     else s = oil>0?0.5:0;
     addFactor(factors,"Crude Inventories",s,`Crude inventory change ${oil}M → larger build can pressure oil prices and reduce future energy inflation.`);
   }
@@ -262,12 +294,6 @@ function analyze(){
   document.getElementById("plan").innerHTML=plan;
   document.getElementById("summary").innerHTML=`<b>${bias}</b> — ဒီ score ဟာ data surprise, previous trend, inflation pressure, growth, oil နဲ့ optional DXY/Yield confirmation တွေကို ပေါင်းတွက်ထားတဲ့ heuristic model ဖြစ်ပါတယ်။ <span class="note">“Probability” ကို statistical probability အစစ်အမှန်လို့ မယူပါနဲ့။</span>`;
 }
-function loadCurrent(){
- const v={ccpi_m:.2,ccpi_m_f:.2,ccpi_m_p:0,ccpi_y:2.5,ccpi_y_f:2.5,ccpi_y_p:2.6,cpi_m:.1,cpi_m_f:.1,cpi_m_p:-.4,cpi_y:3.4,cpi_y_f:3.4,cpi_y_p:3.5,cppi_m:.2,cppi_m_f:.3,cppi_m_p:.4,ppi_m:0,ppi_m_f:.2,ppi_m_p:-.1,ism:54.1,ism_f:54.5,ism_p:54,prices:70.3,prices_p:67.7,employment:47.4,oil:17.4,oil_f:-1.2};
- for(const k in v)document.getElementById(k).value=v[k];
- analyze();
-}
-function clearAll(){document.querySelectorAll("input").forEach(x=>x.value="");document.getElementById("dxy").value=0;document.getElementById("yield").value=0;document.getElementById("score").textContent="—";document.getElementById("bias").textContent="Data ထည့်ပြီး Analyze နှိပ်ပါ";document.getElementById("bullbar").style.width="50%";document.getElementById("bearbar").style.width="50%";document.getElementById("bulltxt").textContent="Bullish 50%";document.getElementById("beartxt").textContent="Bearish 50%";document.getElementById("reasons").innerHTML='<div class="note">Analyze လုပ်ပြီးနောက် factor တစ်ခုချင်းစီ ပြပါမယ်။</div>'}
 </script>
 
 <script>
@@ -291,7 +317,7 @@ function analyzeV2(){
   const ndxTrend=+document.getElementById("ndxTrend").value;
   const oilTrend=+document.getElementById("oilTrend").value;
 
-  const crossMarket=(-dxyTrend*1.5)+(-us10yTrend*1.5)+(spxTrend*0.5)+(ndxTrend*0.8)+(-oilTrend*0.4);
+  const crossMarket=(dxyTrend*1.5)+(us10yTrend*1.5)+(spxTrend*0.5)+(ndxTrend*0.8)+(-oilTrend*0.4);
 
   const fedBias=+document.getElementById("fedBias").value;
   const fedPath=+document.getElementById("fedPath").value;
@@ -329,16 +355,20 @@ function analyzeV2(){
   const target=parseFloat(document.getElementById("target").value);
   const capital=parseFloat(document.getElementById("capital").value);
   const riskpct=parseFloat(document.getElementById("riskpct").value);
-  if([entry,stop,target,capital,riskpct].every(Number.isFinite) && entry!==stop){
+  if([entry,stop,target,capital,riskpct].every(Number.isFinite) && entry>0 && stop>0 && target>0 && capital>0 && riskpct>0 && riskpct<=100 && entry!==stop && (stop<entry && target>entry || stop>entry && target<entry)){
     const riskPerUnit=Math.abs(entry-stop);
     const rewardPerUnit=Math.abs(target-entry);
     const rr=rewardPerUnit/riskPerUnit;
     const riskMoney=capital*riskpct/100;
     const qty=riskMoney/riskPerUnit;
     document.getElementById("riskresult").innerHTML += `<hr style="border-color:#26324e"><b>Risk model</b><br>Risk amount: ${riskMoney.toFixed(2)}<br>Price risk: ${riskPerUnit.toFixed(4)}<br>Estimated position size: ${qty.toFixed(4)} units<br>R:R = <b>1:${rr.toFixed(2)}</b><div class="note" style="margin-top:8px">Leverage မထည့်ထားပါ။ Contract size / fees / slippage မပါသေးတဲ့ simplified position sizing ဖြစ်ပါတယ်။</div>`;
+  } else if ([entry,stop,target,capital,riskpct].some(Number.isFinite)) {
+    document.getElementById("riskresult").innerHTML += `<div class="warning">Invalid or incomplete risk inputs. Use positive prices/capital, risk between 0 and 100%, and stop/target on opposite sides of entry.</div>`;
   }
 }
 </script>
+<script src="./macro-data.js"></script>
+<script src="./dashboard-data.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

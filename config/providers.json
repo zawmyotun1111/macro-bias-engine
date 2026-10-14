@@ -1,0 +1,5 @@
+{
+  "bls": { "enabled": true },
+  "eia": { "enabled": true },
+  "fred": { "enabled": false, "minimumLagDays": 45 }
+}

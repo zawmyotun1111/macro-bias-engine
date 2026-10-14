@@ -1,0 +1,11 @@
+{
+  "name": "macro-bias-engine",
+  "private": true,
+  "version": "2.1.0",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "update-data": "node scripts/update-data.cjs",
+    "validate-data": "node scripts/validate-data.cjs"
+  },
+  "engines": { "node": ">=22" }
+}
